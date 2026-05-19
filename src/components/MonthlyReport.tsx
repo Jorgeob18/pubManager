@@ -218,12 +218,41 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     }
 
     if (format === 'csv') {
-      let csv = 'Nombre,Tipo,Grupo,Tuvo Actividad,Cursos Bíblicos,Horas,Observaciones\n';
-      [...reportData.publicadores, ...reportData.auxiliares, ...reportData.regulares].forEach(p => {
-        csv += `"${p.nombre}","${getPublisherTypeLabel(p.tipo)}",${p.grupo},${p.tuvoActividad ? 'Sí' : 'No'},${p.cursosBiblicos},${p.horasPredicacion || ''},"${p.observaciones}"\n`;
+      let csv = '';
+      
+      csv += `INFORME MENSUAL - ${monthName} ${selectedAnio}\n\n`;
+      
+      csv += 'PUBLICADORES\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Cursos Biblicos\n';
+      reportData.publicadores.forEach(p => {
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.cursosBiblicos}\n`;
       });
+      csv += '\n';
+      csv += `TOTAL ACTIVOS,${reportData.stats.publicadoresActivos}\n`;
+      csv += `TOTAL PUBLICADORES,${reportData.stats.totalPublicadores}\n`;
+      csv += `TOTAL CURSOS BIBLICOS,${reportData.stats.totalCursosBiblicos}\n\n`;
+      
+      csv += 'PRECURSORES AUXILIARES\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos\n';
+      reportData.auxiliares.forEach(p => {
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos}\n`;
+      });
+      csv += '\n';
+      csv += `TOTAL ACTIVOS,${reportData.stats.auxiliaresActivos}\n`;
+      csv += `TOTAL AUXILIARES,${reportData.stats.totalAuxiliares}\n`;
+      csv += `TOTAL HORAS,${reportData.stats.horasAuxiliares}\n\n`;
+      
+      csv += 'PRECURSORES REGULARES\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos\n';
+      reportData.regulares.forEach(p => {
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos}\n`;
+      });
+      csv += '\n';
+      csv += `TOTAL ACTIVOS,${reportData.stats.regularesActivos}\n`;
+      csv += `TOTAL REGULARES,${reportData.stats.totalRegulares}\n`;
+      csv += `TOTAL HORAS,${reportData.stats.horasRegulares}\n`;
 
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
