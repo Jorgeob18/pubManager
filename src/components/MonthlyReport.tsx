@@ -167,6 +167,9 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
   };
 
   const exportReport = async (format: 'txt' | 'csv' | 'pdf' | 'imagen') => {
+    if (format === 'pdf' || format === 'imagen') {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
     const reportData = generateReportData();
     const monthName = getMonthName(selectedMes);
 
@@ -222,24 +225,69 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     }
 
     if (format === 'pdf') {
-      if (!reportRef.current) return;
-      const canvas = await html2canvas(reportRef.current);
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      pdf.save(`informe_${monthName}_${selectedAnio}.pdf`);
+      if (!reportRef.current) {
+        alert('Error: No se encontró el elemento a exportar');
+        return;
+      }
+      try {
+        const canvas = await html2canvas(reportRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+        });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth - 20;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        let heightLeft = imgHeight;
+        let position = 10;
+        
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight + 10;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        
+        pdf.save(`informe_${monthName}_${selectedAnio}.pdf`);
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        alert('Error al generar PDF. Intenta de nuevo.');
+      }
     }
 
     if (format === 'imagen') {
-      if (!reportRef.current) return;
-      const canvas = await html2canvas(reportRef.current);
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `informe_${monthName}_${selectedAnio}.png`;
-      a.click();
+      if (!reportRef.current) {
+        alert('Error: No se encontró el elemento a exportar');
+        return;
+      }
+      try {
+        const canvas = await html2canvas(reportRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `informe_${monthName}_${selectedAnio}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Error exporting image:', error);
+        alert('Error al generar imagen. Intenta de nuevo.');
+      }
     }
   };
 
