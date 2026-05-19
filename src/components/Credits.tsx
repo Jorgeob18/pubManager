@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Settings, Shield, Info, Download, Upload, Database, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useSettings, usePublishers, useReports } from '../hooks/useData';
+import { publishers as publishersDB, reports as reportsDB, settings as settingsDB } from '../db';
 
 interface BackupData {
   version: string;
@@ -49,7 +50,7 @@ const Credits: React.FC = () => {
       const text = await file.text();
       const data: BackupData = JSON.parse(text);
 
-      if (!data.version || !data.publishers || !data.reports) {
+      if (!data.version || !data.publishers) {
         throw new Error('Archivo de respaldo inválido');
       }
 
@@ -60,15 +61,17 @@ const Credits: React.FC = () => {
       if (!confirmRestore) return;
 
       for (const pub of data.publishers) {
-        localStorage.setItem(`pub_${pub.id}`, JSON.stringify(pub));
+        await publishersDB.add(pub);
       }
 
-      for (const rep of data.reports) {
-        localStorage.setItem(`rep_${rep.id}`, JSON.stringify(rep));
+      if (data.reports && data.reports.length > 0) {
+        for (const rep of data.reports) {
+          await reportsDB.add(rep);
+        }
       }
 
       if (data.settings) {
-        localStorage.setItem('app_settings', JSON.stringify(data.settings));
+        await settingsDB.save(data.settings);
       }
 
       await refreshPublishers();
@@ -79,6 +82,7 @@ const Credits: React.FC = () => {
         window.location.reload();
       }, 2000);
     } catch (error) {
+      console.error('Error restoring:', error);
       setBackupStatus({ type: 'error', message: 'Error al restaurar: Archivo corrupto o inválido' });
       setTimeout(() => setBackupStatus({ type: '', message: '' }), 3000);
     }
