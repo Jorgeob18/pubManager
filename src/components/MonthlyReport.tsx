@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { FileText, Download, X, Check, AlertCircle } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { usePublishers, useReports } from '../hooks/useData';
 import type { Publisher, MonthlyReport, ReportData, ReportStats, PublisherReport } from '../types';
 import { getMonthName, getPublisherTypeLabel } from '../utils/helpers';
@@ -21,7 +20,6 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
   const [selectedAnio, setSelectedAnio] = useState<number>(new Date().getFullYear());
   const [showReportForm, setShowReportForm] = useState(false);
   const [selectedPublisher, setSelectedPublisher] = useState<string>('');
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const [reportForm, setReportForm] = useState({
     tuvoActividad: true,
@@ -225,39 +223,77 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     }
 
     if (format === 'pdf') {
-      if (!reportRef.current) {
-        alert('Error: No se encontró el elemento a exportar');
-        return;
-      }
       try {
-        const canvas = await html2canvas(reportRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
+        const pdf = new jsPDF();
         const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pageWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let yPos = 15;
         
-        let heightLeft = imgHeight;
-        let position = 10;
+        pdf.setFontSize(18);
+        pdf.text(`Informe de ${getMonthName(selectedMes)} ${selectedAnio}`, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 15;
         
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 0, 180);
+        pdf.text('PUBLICADORES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
         
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + 10;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+        reportData.publicadores.forEach(p => {
+          const status = p.tuvoActividad ? `Activo - Cursos: ${p.cursosBiblicos}` : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
+        });
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.publicadoresActivos}/${reportData.stats.totalPublicadores}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Cursos Bíblicos: ${reportData.stats.totalCursosBiblicos}`, 14, yPos);
+        yPos += 12;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 100, 0);
+        pdf.text('PRECURSORES AUXILIARES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        
+        reportData.auxiliares.forEach(p => {
+          const status = p.tuvoActividad 
+            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
+            : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
+        });
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.auxiliaresActivos}/${reportData.stats.totalAuxiliares}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Horas: ${reportData.stats.horasAuxiliares}`, 14, yPos);
+        yPos += 12;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(128, 0, 128);
+        pdf.text('PRECURSORES REGULARES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        
+        reportData.regulares.forEach(p => {
+          const status = p.tuvoActividad 
+            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
+            : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
+        });
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
         
         pdf.save(`informe_${monthName}_${selectedAnio}.pdf`);
       } catch (error) {
@@ -267,19 +303,81 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     }
 
     if (format === 'imagen') {
-      if (!reportRef.current) {
-        alert('Error: No se encontró el elemento a exportar');
-        return;
-      }
       try {
-        const canvas = await html2canvas(reportRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
+        const pdf = new jsPDF();
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        let yPos = 15;
+        
+        pdf.setFontSize(18);
+        pdf.text(`Informe de ${getMonthName(selectedMes)} ${selectedAnio}`, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 15;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 0, 180);
+        pdf.text('PUBLICADORES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        
+        reportData.publicadores.forEach(p => {
+          const status = p.tuvoActividad ? `Activo - Cursos: ${p.cursosBiblicos}` : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
         });
-        const url = canvas.toDataURL('image/png');
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.publicadoresActivos}/${reportData.stats.totalPublicadores}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Cursos Bíblicos: ${reportData.stats.totalCursosBiblicos}`, 14, yPos);
+        yPos += 12;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 100, 0);
+        pdf.text('PRECURSORES AUXILIARES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        
+        reportData.auxiliares.forEach(p => {
+          const status = p.tuvoActividad 
+            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
+            : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
+        });
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.auxiliaresActivos}/${reportData.stats.totalAuxiliares}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Horas: ${reportData.stats.horasAuxiliares}`, 14, yPos);
+        yPos += 12;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(128, 0, 128);
+        pdf.text('PRECURSORES REGULARES', 14, yPos);
+        yPos += 8;
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
+        
+        reportData.regulares.forEach(p => {
+          const status = p.tuvoActividad 
+            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
+            : 'SIN REPORTE';
+          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
+          yPos += 5;
+        });
+        
+        yPos += 5;
+        pdf.setFontSize(11);
+        pdf.text(`Total Activos: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}`, 14, yPos);
+        yPos += 5;
+        pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
+        
+        const imgData = pdf.output('datauristring');
         const link = document.createElement('a');
-        link.href = url;
+        link.href = imgData;
         link.download = `informe_${monthName}_${selectedAnio}.png`;
         document.body.appendChild(link);
         link.click();
@@ -383,7 +481,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         </div>
       </div>
 
-      <div ref={reportRef} className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             Informe de {getMonthName(selectedMes)} {selectedAnio}
