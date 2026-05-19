@@ -15,6 +15,7 @@ export interface Publisher {
 export interface MonthlyReport {
   id: string;
   publisherId: string;
+  publisherType: PublisherType;
   mes: string;
   anio: number;
   tuvoActividad: boolean;

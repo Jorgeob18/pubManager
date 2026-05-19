@@ -20,6 +20,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
   const [selectedAnio, setSelectedAnio] = useState<number>(new Date().getFullYear());
   const [showReportForm, setShowReportForm] = useState(false);
   const [selectedPublisher, setSelectedPublisher] = useState<string>('');
+  const [selectedPublisherType, setSelectedPublisherType] = useState<string>('');
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartInstanceRef = useRef<any>(null);
 
@@ -58,10 +59,12 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
 
     publishers.forEach(pub => {
       const report = getReportForPublisher(pub.id);
+      const tipoEnElMes = report?.publisherType || pub.tipo;
+      
       const pubReport: PublisherReport = {
         id: pub.id,
         nombre: pub.nombre,
-        tipo: pub.tipo,
+        tipo: tipoEnElMes,
         grupo: pub.grupo,
         tuvoActividad: report?.tuvoActividad ?? false,
         cursosBiblicos: report?.cursosBiblicos ?? 0,
@@ -69,9 +72,9 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         observaciones: report?.observaciones ?? '',
       };
 
-      if (pub.tipo === 'auxiliar') {
+      if (tipoEnElMes === 'auxiliar') {
         auxiliares.push(pubReport);
-      } else if (pub.tipo === 'regular') {
+      } else if (tipoEnElMes === 'regular') {
         regulares.push(pubReport);
       } else {
         publicadores.push(pubReport);
@@ -96,10 +99,12 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
 
   const handleSaveReport = async () => {
     const existingReport = getReportForPublisher(selectedPublisher);
+    const publisherType = selectedPublisherType || publishers.find(p => p.id === selectedPublisher)?.tipo || 'bautizado';
 
     if (existingReport) {
       await updateReport({
         ...existingReport,
+        publisherType: publisherType as any,
         tuvoActividad: reportForm.tuvoActividad,
         cursosBiblicos: reportForm.cursosBiblicos,
         horasPredicacion: reportForm.horasPredicacion,
@@ -108,6 +113,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     } else {
       await addReport({
         publisherId: selectedPublisher,
+        publisherType: publisherType as any,
         mes: selectedMes,
         anio: selectedAnio,
         tuvoActividad: reportForm.tuvoActividad,
@@ -131,6 +137,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     const existingReport = getReportForPublisher(publisher.id);
     setSelectedPublisher(publisher.id);
     if (existingReport) {
+      setSelectedPublisherType(existingReport.publisherType || publisher.tipo);
       setReportForm({
         tuvoActividad: existingReport.tuvoActividad,
         cursosBiblicos: existingReport.cursosBiblicos,
@@ -138,6 +145,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         observaciones: existingReport.observaciones,
       });
     } else {
+      setSelectedPublisherType(publisher.tipo);
       setReportForm({
         tuvoActividad: true,
         cursosBiblicos: 0,
