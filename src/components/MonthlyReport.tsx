@@ -701,6 +701,25 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
             </div>
 
             <div className="p-4 space-y-4">
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo en este mes
+                </label>
+                <select
+                  value={selectedPublisherType}
+                  onChange={(e) => setSelectedPublisherType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="bautizado">Publicador Bautizado</option>
+                  <option value="no_bautizado">Publicador No Bautizado</option>
+                  <option value="auxiliar">Precursor Auxiliar</option>
+                  <option value="regular">Precursor Regular</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Por defecto toma el tipo del directorio. Cambia solo si en este mes era diferente.
+                </p>
+              </div>
+
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -728,7 +747,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
                 />
               </div>
 
-              {['auxiliar', 'regular'].includes(publishers.find(p => p.id === selectedPublisher)?.tipo || '') && (
+              {['auxiliar', 'regular'].includes(selectedPublisherType) && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Horas de Predicación
