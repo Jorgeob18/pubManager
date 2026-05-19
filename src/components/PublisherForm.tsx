@@ -79,15 +79,14 @@ const PublisherForm: React.FC<PublisherFormProps> = ({ publisher, onSave, onCanc
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono Móvil *
+              Teléfono Móvil
             </label>
             <input
               type="tel"
-              required
               value={formData.telefono}
               onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="+1234567890"
+              placeholder="+1234567890 (opcional)"
             />
           </div>
 
