@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, MessageCircle, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, MessageCircle, Search, Calendar, CheckCircle } from 'lucide-react';
 import { usePublishers } from '../hooks/useData';
 import type { Publisher } from '../types';
 import PublisherForm from './PublisherForm';
@@ -11,6 +11,7 @@ const Directory: React.FC = () => {
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGroup, setFilterGroup] = useState<number | ''>('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const filteredPublishers = publishers.filter((p) => {
     const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase());
@@ -28,6 +29,8 @@ const Directory: React.FC = () => {
     }
     setShowForm(false);
     setEditingPublisher(null);
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 3000);
   };
 
   const handleDelete = async (id: string) => {
@@ -118,9 +121,9 @@ const Directory: React.FC = () => {
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 mb-4">
-                <p>📱 {publisher.telefono || '-'}</p>
-                <p>🎂 {formatDate(publisher.fechaNacimiento)}</p>
-                <p>💧 {formatDate(publisher.fechaBautismo)}</p>
+                <p className="flex items-center"><span className="mr-2">📱</span> {publisher.telefono || '-'}</p>
+                <p className="flex items-center"><Calendar className="w-4 h-4 mr-2 text-blue-500" /> {formatDate(publisher.fechaNacimiento)}</p>
+                <p className="flex items-center"><span className="mr-2">💧</span> {formatDate(publisher.fechaBautismo)}</p>
               </div>
 
               <div className="flex justify-end space-x-2 pt-2 border-t">
@@ -160,6 +163,15 @@ const Directory: React.FC = () => {
             setEditingPublisher(null);
           }}
         />
+      )}
+
+      {showSuccessMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-green-500 text-white px-8 py-6 rounded-lg shadow-xl flex items-center">
+            <CheckCircle className="w-8 h-8 mr-3" />
+            <span className="text-xl font-semibold">¡Guardado exitosamente!</span>
+          </div>
+        </div>
       )}
     </div>
   );
