@@ -45,10 +45,10 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     { value: '12', label: 'Diciembre' },
   ];
 
-  const anios = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+  const anios = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i);
 
   const getReportForPublisher = (publisherId: string): MonthlyReport | undefined => {
-    return reports.find(r => r.publisherId === publisherId && r.mes === selectedMes);
+    return reports.find(r => r.publisherId === publisherId && r.mes === selectedMes && r.anio === selectedAnio);
   };
 
   const generateReportData = (): ReportData => {
