@@ -305,13 +305,18 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         yPos += 5;
         pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
         
+        pdf.addPage();
+        
+        pdf.setFontSize(14);
+        pdf.text('Resumen Gráfico', pageWidth / 2, 30, { align: 'center' });
+        
         if (chartInstanceRef.current) {
           try {
             const chartImg = chartInstanceRef.current.toBase64Image();
-            const chartWidth = 80;
-            const chartHeight = 80;
+            const chartWidth = 120;
+            const chartHeight = 120;
             const chartX = (pageWidth - chartWidth) / 2;
-            pdf.addImage(chartImg, 'PNG', chartX, yPos + 10, chartWidth, chartHeight);
+            pdf.addImage(chartImg, 'PNG', chartX, 50, chartWidth, chartHeight);
           } catch (e) {
             console.warn('Could not add chart to PDF:', e);
           }
@@ -397,13 +402,18 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         yPos += 5;
         pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
         
+        pdf.addPage();
+        
+        pdf.setFontSize(14);
+        pdf.text('Resumen Gráfico', pageWidth / 2, 30, { align: 'center' });
+        
         if (chartInstanceRef.current) {
           try {
             const chartImg = chartInstanceRef.current.toBase64Image();
-            const chartWidth = 80;
-            const chartHeight = 80;
+            const chartWidth = 120;
+            const chartHeight = 120;
             const chartX = (pageWidth - chartWidth) / 2;
-            pdf.addImage(chartImg, 'PNG', chartX, yPos + 10, chartWidth, chartHeight);
+            pdf.addImage(chartImg, 'PNG', chartX, 50, chartWidth, chartHeight);
           } catch (e) {
             console.warn('Could not add chart to image:', e);
           }
