@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FileText, Download, X, Check, AlertCircle } from 'lucide-react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { usePublishers, useReports } from '../hooks/useData';
 import type { Publisher, MonthlyReport, ReportData, ReportStats, PublisherReport } from '../types';
 import { getMonthName, getPublisherTypeLabel } from '../utils/helpers';
@@ -20,6 +21,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
   const [selectedAnio, setSelectedAnio] = useState<number>(new Date().getFullYear());
   const [showReportForm, setShowReportForm] = useState(false);
   const [selectedPublisher, setSelectedPublisher] = useState<string>('');
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const [reportForm, setReportForm] = useState({
     tuvoActividad: true,
@@ -295,6 +297,19 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         yPos += 5;
         pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
         
+        if (chartRef.current) {
+          try {
+            const chartCanvas = await html2canvas(chartRef.current, { scale: 2 });
+            const chartImg = chartCanvas.toDataURL('image/png');
+            const chartWidth = 80;
+            const chartHeight = 80;
+            const chartX = (pageWidth - chartWidth) / 2;
+            pdf.addImage(chartImg, 'PNG', chartX, yPos + 10, chartWidth, chartHeight);
+          } catch (e) {
+            console.warn('Could not add chart to PDF:', e);
+          }
+        }
+        
         pdf.save(`informe_${monthName}_${selectedAnio}.pdf`);
       } catch (error) {
         console.error('Error exporting PDF:', error);
@@ -374,6 +389,19 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         pdf.text(`Total Activos: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}`, 14, yPos);
         yPos += 5;
         pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
+        
+        if (chartRef.current) {
+          try {
+            const chartCanvas = await html2canvas(chartRef.current, { scale: 2 });
+            const chartImg = chartCanvas.toDataURL('image/png');
+            const chartWidth = 80;
+            const chartHeight = 80;
+            const chartX = (pageWidth - chartWidth) / 2;
+            pdf.addImage(chartImg, 'PNG', chartX, yPos + 10, chartWidth, chartHeight);
+          } catch (e) {
+            console.warn('Could not add chart to image:', e);
+          }
+        }
         
         const imgData = pdf.output('datauristring');
         const link = document.createElement('a');
@@ -642,7 +670,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         </div>
 
         <div className="mt-8 flex justify-center">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md" ref={chartRef}>
             <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Resumen Gráfico</h3>
             <Pie data={generateChartData()} options={{ maintainAspectRatio: true }} />
           </div>
