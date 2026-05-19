@@ -1,73 +1,97 @@
-# React + TypeScript + Vite
+# PubManager - Gestión de Publicadores del Grupo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**PubManager** es una aplicación web progresiva (PWA) diseñada específicamente para los superintendentes de grupo y sus auxiliares en las congregaciones de los Testigos de Jehovah. Su función principal es facilitar el registro y seguimiento de los publicadores, así como la generación de informes mensuales de actividades.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 📋 Directorio de Publicadores
+- Registro completo de publicadores: nombre, teléfono móvil, fecha de nacimiento, fecha de bautismo
+- Clasificación por tipo: Publicador Bautizado, Publicador No Bautizado, Precursor Auxiliar, Precursor Regular
+- Asignación por número de grupo
+- CRUD completo (agregar, editar, eliminar)
+- Búsqueda y filtrado por grupo
+- Botón de WhatsApp para solicitar informes directamente
 
-## React Compiler
+### 📊 Informe Mensual
+- Selector de mes y año para consultar historique
+- Registro de actividades por cada publicador:
+  - ¿Tuvo actividad?
+  - Cursos bíblicos impartidos
+  - Horas de prédica (para auxiliares y regulares)
+  - Observaciones
+- Clasificación histórica: cada informe guarda el tipo de publicador que era en ese mes
+- Resumen por categoría con totales
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 📈 Gráfico de Pastel
+- Visualización de activos por tipo
+- Indicador de quienes no reportaron (en rojo)
+- Se incluye en los informes PDF e imagen
 
-## Expanding the ESLint configuration
+### 💾 Exportación
+- **TXT**: Informe de texto simple
+- **CSV**: Datos tabulares para hojas de cálculo
+- **PDF**: Informe completo con gráfico
+- **Imagen**: Captura del informe en formato PNG
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔄 Respaldo y Restauración
+- Exportar todos los datos en formato JSON
+- Restaurar datos desde un archivo de respaldo
+- Útil para cambiar de dispositivo o recuperar información
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📱 PWA (Aplicación Progresiva)
+- Instalable en dispositivos móviles
+- Funciona sin conexión a internet
+- Actualizaciones automáticas
+- Acceso rápido desde la pantalla de inicio
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tecnologías Utilizadas
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Frontend**: React + TypeScript + Vite
+- **Estilos**: Tailwind CSS
+- **Gráficos**: Chart.js + React-Chartjs-2
+- **PDF**: jsPDF
+- **Base de datos**: IndexedDB (almacenamiento local)
+- **PWA**: Vite PWA Plugin + Workbox
+
+## Instalación
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/Jorgeob18/pubManager.git
+
+# Entrar al directorio
+cd pubmanager
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Despliegue
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+El proyecto está configurado para desplegarse en Netlify:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Conectar el repositorio de GitHub en Netlify
+2. Configurar:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+3. Desplegar
+
+## Privacidad y Seguridad
+
+- ✅ Todos los datos se almacenan **localmente** en tu dispositivo
+- ✅ **No se comparten datos** con servidores externos
+- ✅ No requiere conexión a internet para funcionar
+- ✅ Los datos pueden respaldarse y restaurarse manualmente
+
+**Recomendación**: Realiza respaldos periódicos de tus datos exportándolos en formato JSON.
+
+## Créditos
+
+Desarrollado por: **@GeorgeDev**
+
+---
+
+*Versión 1.0.0 - PubManager*
