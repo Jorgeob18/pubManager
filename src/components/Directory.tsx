@@ -5,7 +5,11 @@ import type { Publisher } from '../types';
 import PublisherForm from './PublisherForm';
 import { formatDate, getPublisherTypeLabel, getPublisherTypeColor, getWhatsAppLink, getMesAnioActual } from '../utils/helpers';
 
-const Directory: React.FC = () => {
+interface DirectoryProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const Directory: React.FC<DirectoryProps> = ({ onNavigate }) => {
   const { publishers, addPublisher, updatePublisher, deletePublisher, loading } = usePublishers();
   const [showForm, setShowForm] = useState(false);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
@@ -30,7 +34,10 @@ const Directory: React.FC = () => {
     setShowForm(false);
     setEditingPublisher(null);
     setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+      if (onNavigate) onNavigate('directory');
+    }, 2000);
   };
 
   const handleDelete = async (id: string) => {
@@ -165,14 +172,12 @@ const Directory: React.FC = () => {
         />
       )}
 
-      {showSuccessMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-green-500 text-white px-8 py-6 rounded-lg shadow-xl flex items-center">
-            <CheckCircle className="w-8 h-8 mr-3" />
-            <span className="text-xl font-semibold">¡Guardado exitosamente!</span>
-          </div>
+      <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ${showSuccessMessage ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+        <div className="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg flex items-center">
+          <CheckCircle className="w-5 h-5 mr-2" />
+          <span className="font-medium">¡Guardado exitosamente!</span>
         </div>
-      )}
+      </div>
     </div>
   );
 };

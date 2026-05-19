@@ -10,13 +10,13 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'directory':
-        return <Directory />;
+        return <Directory onNavigate={setActiveTab} />;
       case 'report':
         return <MonthlyReportComponent />;
       case 'credits':
         return <Credits />;
       default:
-        return <Directory />;
+        return <Directory onNavigate={setActiveTab} />;
     }
   };
 
