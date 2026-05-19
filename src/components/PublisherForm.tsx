@@ -15,7 +15,7 @@ const PublisherForm: React.FC<PublisherFormProps> = ({ publisher, onSave, onCanc
     fechaNacimiento: '',
     fechaBautismo: '',
     tipo: 'bautizado' as PublisherType,
-    grupo: 1,
+    grupo: 0,
   });
 
   useEffect(() => {
@@ -93,15 +93,15 @@ const PublisherForm: React.FC<PublisherFormProps> = ({ publisher, onSave, onCanc
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Grupo *
+              Grupo
             </label>
             <input
               type="number"
-              required
               min={1}
-              value={formData.grupo}
-              onChange={(e) => setFormData({ ...formData, grupo: parseInt(e.target.value) || 1 })}
+              value={formData.grupo || ''}
+              onChange={(e) => setFormData({ ...formData, grupo: e.target.value ? parseInt(e.target.value) : 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Número de grupo"
             />
           </div>
 

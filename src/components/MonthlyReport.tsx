@@ -534,9 +534,10 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
                 <input
                   type="number"
                   min="0"
-                  value={reportForm.cursosBiblicos}
-                  onChange={(e) => setReportForm({ ...reportForm, cursosBiblicos: parseInt(e.target.value) || 0 })}
+                  value={reportForm.cursosBiblicos || ''}
+                  onChange={(e) => setReportForm({ ...reportForm, cursosBiblicos: e.target.value ? parseInt(e.target.value) : 0 })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
                 />
               </div>
 
@@ -548,9 +549,10 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
                   <input
                     type="number"
                     min="0"
-                    value={reportForm.horasPredicacion}
-                    onChange={(e) => setReportForm({ ...reportForm, horasPredicacion: parseInt(e.target.value) || 0 })}
+                    value={reportForm.horasPredicacion || ''}
+                    onChange={(e) => setReportForm({ ...reportForm, horasPredicacion: e.target.value ? parseInt(e.target.value) : 0 })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
                   />
                 </div>
               )}
