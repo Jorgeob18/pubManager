@@ -202,7 +202,8 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         content += `${p.nombre} - ${p.tuvoActividad ? 'Activo' : 'Sin Reporte'} - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}\n`;
       });
       content += `\nTotal Auxiliares: ${reportData.stats.auxiliaresActivos}/${reportData.stats.totalAuxiliares}\n`;
-      content += `Total Horas: ${reportData.stats.horasAuxiliares}\n\n`;
+      content += `Total Horas: ${reportData.stats.horasAuxiliares}\n`;
+      content += `Total Cursos Bíblicos: ${reportData.stats.cursosBiblicosAuxiliares}\n\n`;
 
       content += `PRECURSORES REGULARES\n`;
       content += '-'.repeat(50) + '\n';
@@ -211,6 +212,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       });
       content += `\nTotal Regulares: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}\n`;
       content += `Total Horas: ${reportData.stats.horasRegulares}\n`;
+      content += `Total Cursos Bíblicos: ${reportData.stats.cursosBiblicosRegulares}\n`;
 
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
