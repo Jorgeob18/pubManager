@@ -383,15 +383,24 @@ if (format === 'imagen') {
           return;
         }
         
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         const canvas = await html2canvas(reportContainerRef.current, {
           scale: 2,
           useCORS: true,
           logging: false,
+          backgroundColor: '#ffffff',
         });
         
+        if (!canvas) {
+          throw new Error('Canvas is null');
+        }
+        
         const imgData = canvas.toDataURL('image/png');
+        if (!imgData || imgData === 'data:,') {
+          throw new Error('Image data is empty');
+        }
+        
         const link = document.createElement('a');
         link.href = imgData;
         link.download = `informe_${monthName}_${selectedAnio}.png`;
@@ -400,7 +409,7 @@ if (format === 'imagen') {
         document.body.removeChild(link);
       } catch (error) {
         console.error('Error exporting image:', error);
-        alert('Error al generar imagen. Intenta de nuevo.');
+        alert('Error al generar imagen: ' + (error as Error).message);
       }
     }
   };

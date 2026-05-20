@@ -13,11 +13,11 @@
 - Botón de WhatsApp para solicitar informes directamente
 
 ### 📊 Informe Mensual
-- Selector de mes y año para consultar historique
+- Selector de mes y año para consultar historico
 - Registro de actividades por cada publicador:
   - ¿Tuvo actividad?
   - Cursos bíblicos impartidos
-  - Horas de prédica (para auxiliares y regulares)
+  - Horas de predicación (para auxiliares y regulares)
   - Observaciones
 - Clasificación histórica: cada informe guarda el tipo de publicador que era en ese mes
 - Resumen por categoría con totales
