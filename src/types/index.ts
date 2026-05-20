@@ -51,9 +51,11 @@ export interface ReportStats {
   totalAuxiliares: number;
   auxiliaresActivos: number;
   horasAuxiliares: number;
+  cursosBiblicosAuxiliares: number;
   totalRegulares: number;
   regularesActivos: number;
   horasRegulares: number;
+  cursosBiblicosRegulares: number;
   noReportaron: number;
 }
 
