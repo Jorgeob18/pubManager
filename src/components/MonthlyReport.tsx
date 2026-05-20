@@ -177,8 +177,8 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
     };
   };
 
-  const exportReport = async (format: 'txt' | 'csv' | 'pdf' | 'imagen') => {
-    if (format === 'pdf' || format === 'imagen') {
+  const exportReport = async (format: 'txt' | 'csv' | 'pdf') => {
+    if (format === 'pdf') {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     const reportData = generateReportData();
@@ -377,123 +377,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       }
     }
 
-if (format === 'imagen') {
-      try {
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
-        
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        let yPos = 15;
-        
-        pdf.setFontSize(18);
-        pdf.text(`Informe de ${getMonthName(selectedMes)} ${selectedAnio}`, pageWidth / 2, yPos, { align: 'center' });
-        yPos += 15;
-        
-        pdf.setFontSize(14);
-        pdf.setTextColor(0, 0, 180);
-        pdf.text('PUBLICADORES', 14, yPos);
-        yPos += 8;
-        pdf.setFontSize(10);
-        pdf.setTextColor(0, 0, 0);
-        
-        reportData.publicadores.forEach(p => {
-          const status = p.tuvoActividad ? `Activo - Cursos: ${p.cursosBiblicos}` : 'SIN REPORTE';
-          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
-          yPos += 5;
-        });
-        
-        yPos += 5;
-        pdf.setFontSize(11);
-        pdf.text(`Total Activos: ${reportData.stats.publicadoresActivos}/${reportData.stats.totalPublicadores}`, 14, yPos);
-        yPos += 5;
-        pdf.text(`Total Cursos Bíblicos: ${reportData.stats.totalCursosBiblicos}`, 14, yPos);
-        yPos += 12;
-        
-        pdf.setFontSize(14);
-        pdf.setTextColor(0, 100, 0);
-        pdf.text('PRECURSORES AUXILIARES', 14, yPos);
-        yPos += 8;
-        pdf.setFontSize(10);
-        pdf.setTextColor(0, 0, 0);
-        
-        reportData.auxiliares.forEach(p => {
-          const status = p.tuvoActividad 
-            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
-            : 'SIN REPORTE';
-          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
-          yPos += 5;
-        });
-        
-        yPos += 5;
-        pdf.setFontSize(11);
-        pdf.text(`Total Activos: ${reportData.stats.auxiliaresActivos}/${reportData.stats.totalAuxiliares}`, 14, yPos);
-        yPos += 5;
-        pdf.text(`Total Horas: ${reportData.stats.horasAuxiliares}`, 14, yPos);
-        yPos += 5;
-        pdf.text(`Total Cursos Biblicos: ${reportData.stats.cursosBiblicosAuxiliares}`, 14, yPos);
-        yPos += 12;
-        
-        pdf.setFontSize(14);
-        pdf.setTextColor(128, 0, 128);
-        pdf.text('PRECURSORES REGULARES', 14, yPos);
-        yPos += 8;
-        pdf.setFontSize(10);
-        pdf.setTextColor(0, 0, 0);
-        
-        reportData.regulares.forEach(p => {
-          const status = p.tuvoActividad 
-            ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
-            : 'SIN REPORTE';
-          pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
-          yPos += 5;
-        });
-        
-        yPos += 5;
-        pdf.setFontSize(11);
-        pdf.text(`Total Activos: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}`, 14, yPos);
-        yPos += 5;
-        pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
-        yPos += 5;
-        pdf.text(`Total Cursos Biblicos: ${reportData.stats.cursosBiblicosRegulares}`, 14, yPos);
-        
-        pdf.addPage();
-        pdf.setFontSize(14);
-        pdf.text('Resumen Grafico', pageWidth / 2, 30, { align: 'center' });
-        
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        if (chartInstanceRef.current) {
-          try {
-            const chartBase64 = chartInstanceRef.current.toBase64Image();
-            if (chartBase64 && chartBase64.length > 0) {
-              const chartWidth = 120;
-              const chartHeight = 120;
-              const chartX = (pageWidth - chartWidth) / 2;
-              pdf.addImage(chartBase64, 'PNG', chartX, 50, chartWidth, chartHeight);
-            }
-          } catch (e) {
-            console.warn('Could not add chart:', e);
-          }
-        }
-        
-        const pdfBlob = pdf.output('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `informe_${monthName}_${selectedAnio}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Error exporting image:', error);
-        alert('Error al generar imagen: ' + (error as Error).message);
-      }
-    }
-  };
+};
 
   const reportData = generateReportData();
 
@@ -551,13 +435,7 @@ if (format === 'imagen') {
             <FileText className="w-4 h-4 mr-2" />
             PDF
           </button>
-          <button
-            onClick={() => exportReport('imagen')}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Imagen
-          </button>
+          
         </div>
       </div>
 
