@@ -240,7 +240,8 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       csv += '\n';
       csv += `TOTAL ACTIVOS,${reportData.stats.auxiliaresActivos}\n`;
       csv += `TOTAL AUXILIARES,${reportData.stats.totalAuxiliares}\n`;
-      csv += `TOTAL HORAS,${reportData.stats.horasAuxiliares}\n\n`;
+      csv += `TOTAL HORAS,${reportData.stats.horasAuxiliares}\n`;
+      csv += `TOTAL CURSOS BIBLICOS,${reportData.auxiliares.reduce((sum, p) => sum + p.cursosBiblicos, 0)}\n\n`;
       
       csv += 'PRECURSORES REGULARES\n';
       csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos\n';
@@ -251,6 +252,7 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       csv += `TOTAL ACTIVOS,${reportData.stats.regularesActivos}\n`;
       csv += `TOTAL REGULARES,${reportData.stats.totalRegulares}\n`;
       csv += `TOTAL HORAS,${reportData.stats.horasRegulares}\n`;
+      csv += `TOTAL CURSOS BIBLICOS,${reportData.regulares.reduce((sum, p) => sum + p.cursosBiblicos, 0)}\n`;
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -337,18 +339,26 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         pdf.addPage();
         
         pdf.setFontSize(14);
-        pdf.text('Resumen Gráfico', pageWidth / 2, 30, { align: 'center' });
+        pdf.text('Resumen Grafico', pageWidth / 2, 30, { align: 'center' });
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         if (chartInstanceRef.current) {
           try {
-            const chartImg = chartInstanceRef.current.toBase64Image();
-            const chartWidth = 120;
-            const chartHeight = 120;
-            const chartX = (pageWidth - chartWidth) / 2;
-            pdf.addImage(chartImg, 'PNG', chartX, 50, chartWidth, chartHeight);
+            const chartBase64 = chartInstanceRef.current.toBase64Image();
+            if (chartBase64 && chartBase64.length > 0) {
+              const chartWidth = 120;
+              const chartHeight = 120;
+              const chartX = (pageWidth - chartWidth) / 2;
+              pdf.addImage(chartBase64, 'PNG', chartX, 50, chartWidth, chartHeight);
+            } else {
+              console.warn('Chart base64 is empty');
+            }
           } catch (e) {
-            console.warn('Could not add chart to PDF:', e);
+            console.error('Error adding chart to PDF:', e);
           }
+        } else {
+          console.warn('Chart ref is null');
         }
         
         pdf.save(`informe_${monthName}_${selectedAnio}.pdf`);
