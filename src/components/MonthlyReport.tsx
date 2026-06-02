@@ -16,8 +16,10 @@ interface MonthlyReportProps {
 const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
   const { publishers } = usePublishers();
   const { reports, addReport, updateReport } = useReports();
-  const [selectedMes, setSelectedMes] = useState<string>(String(new Date().getMonth() + 1).padStart(2, '0'));
-  const [selectedAnio, setSelectedAnio] = useState<number>(new Date().getFullYear());
+  const fechaAnterior = new Date();
+  fechaAnterior.setMonth(fechaAnterior.getMonth() - 1);
+  const [selectedMes, setSelectedMes] = useState<string>(String(fechaAnterior.getMonth() + 1).padStart(2, '0'));
+  const [selectedAnio, setSelectedAnio] = useState<number>(fechaAnterior.getFullYear());
   const [showReportForm, setShowReportForm] = useState(false);
   const [selectedPublisher, setSelectedPublisher] = useState<string>('');
   const [selectedPublisherType, setSelectedPublisherType] = useState<string>('');

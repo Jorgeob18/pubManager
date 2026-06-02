@@ -41,15 +41,16 @@ export const getCurrentMonth = (): string => {
 };
 
 export const getMesAnioActual = (): { mes: string; anio: number } => {
-  const now = new Date();
+  const fecha = new Date();
+  fecha.setMonth(fecha.getMonth() - 1);
   return {
-    mes: String(now.getMonth() + 1).padStart(2, '0'),
-    anio: now.getFullYear(),
+    mes: String(fecha.getMonth() + 1).padStart(2, '0'),
+    anio: fecha.getFullYear(),
   };
 };
 
-export const getWhatsAppLink = (telefono: string, nombre: string, mes: string, anio: number): string => {
-  const mensaje = `Hola ${nombre}, buen día 😊 espero que se encuentre muy bien. \n\nLe solicito por favor su informe de predicación del mes de ${getMonthName(mes)} de ${anio}.\n\nDe antemano muchas gracias y que Jehová le bendiga 🙏`;
+export const getWhatsAppLink = (telefono: string, _nombre: string, mes: string, anio: number): string => {
+  const mensaje = `Hola herman@, buen día 😊 espero que se encuentre muy bien. \n\nLe solicito por favor su informe de predicación del mes de ${getMonthName(mes)} de ${anio}.\n\nDe antemano muchas gracias y que Jehová le bendiga 🙏`;
   const telefonoLimpio = telefono.replace(/\D/g, '');
   return `https://wa.me/${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
 };
