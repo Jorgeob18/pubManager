@@ -9,6 +9,8 @@ import { getMonthName, getPublisherTypeLabel } from '../utils/helpers';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const escapeCsv = (value: string): string => `"${(value ?? '').replace(/"/g, '""')}"`;
+
 interface MonthlyReportProps {
   onExport?: (format: 'txt' | 'csv' | 'pdf' | 'imagen') => void;
 }
@@ -230,9 +232,9 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       csv += `INFORME MENSUAL - ${monthName} ${selectedAnio}\n\n`;
       
       csv += 'PUBLICADORES\n';
-      csv += 'Nombre,Grupo,Tuvo Actividad,Cursos Biblicos\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Cursos Biblicos,Observaciones\n';
       reportData.publicadores.forEach(p => {
-        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.cursosBiblicos}\n`;
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.cursosBiblicos},${escapeCsv(p.observaciones)}\n`;
       });
       csv += '\n';
       csv += `TOTAL ACTIVOS,${reportData.stats.publicadoresActivos}\n`;
@@ -240,9 +242,9 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       csv += `TOTAL CURSOS BIBLICOS,${reportData.stats.totalCursosBiblicos}\n\n`;
       
       csv += 'PRECURSORES AUXILIARES\n';
-      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos,Observaciones\n';
       reportData.auxiliares.forEach(p => {
-        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos}\n`;
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos},${escapeCsv(p.observaciones)}\n`;
       });
       csv += '\n';
       csv += `TOTAL ACTIVOS,${reportData.stats.auxiliaresActivos}\n`;
@@ -251,9 +253,9 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       csv += `TOTAL CURSOS BIBLICOS,${reportData.auxiliares.reduce((sum, p) => sum + p.cursosBiblicos, 0)}\n\n`;
       
       csv += 'PRECURSORES REGULARES\n';
-      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos\n';
+      csv += 'Nombre,Grupo,Tuvo Actividad,Horas,Cursos Biblicos,Observaciones\n';
       reportData.regulares.forEach(p => {
-        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos}\n`;
+        csv += `"${p.nombre}",${p.grupo},${p.tuvoActividad ? 'Si' : 'No'},${p.horasPredicacion || 0},${p.cursosBiblicos},${escapeCsv(p.observaciones)}\n`;
       });
       csv += '\n';
       csv += `TOTAL ACTIVOS,${reportData.stats.regularesActivos}\n`;
@@ -274,8 +276,30 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
       try {
         const pdf = new jsPDF();
         const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
         let yPos = 15;
-        
+
+        const ensureSpace = (needed = 6) => {
+          if (yPos + needed > pageHeight - 10) {
+            pdf.addPage();
+            yPos = 15;
+          }
+        };
+
+        const addObservacion = (obs: string) => {
+          if (!obs || !obs.trim()) return;
+          pdf.setFontSize(9);
+          pdf.setTextColor(90, 90, 90);
+          const lines = pdf.splitTextToSize(`Obs: ${obs}`, pageWidth - 30);
+          lines.forEach((line: string) => {
+            ensureSpace(5);
+            pdf.text(line, 18, yPos);
+            yPos += 4;
+          });
+          pdf.setFontSize(10);
+          pdf.setTextColor(0, 0, 0);
+        };
+
         pdf.setFontSize(18);
         pdf.text(`Informe de ${getMonthName(selectedMes)} ${selectedAnio}`, pageWidth / 2, yPos, { align: 'center' });
         yPos += 15;
@@ -289,17 +313,22 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
         
         reportData.publicadores.forEach(p => {
           const status = p.tuvoActividad ? `Activo - Cursos: ${p.cursosBiblicos}` : 'SIN REPORTE';
+          ensureSpace(10);
           pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
           yPos += 5;
+          addObservacion(p.observaciones);
         });
         
         yPos += 5;
+        ensureSpace(10);
         pdf.setFontSize(11);
         pdf.text(`Total Activos: ${reportData.stats.publicadoresActivos}/${reportData.stats.totalPublicadores}`, 14, yPos);
         yPos += 5;
+        ensureSpace(6);
         pdf.text(`Total Cursos Bíblicos: ${reportData.stats.totalCursosBiblicos}`, 14, yPos);
         yPos += 12;
         
+        ensureSpace(12);
         pdf.setFontSize(14);
         pdf.setTextColor(0, 100, 0);
         pdf.text('PRECURSORES AUXILIARES', 14, yPos);
@@ -311,19 +340,25 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
           const status = p.tuvoActividad 
             ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
             : 'SIN REPORTE';
+          ensureSpace(10);
           pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
           yPos += 5;
+          addObservacion(p.observaciones);
         });
         
         yPos += 5;
+        ensureSpace(10);
         pdf.setFontSize(11);
         pdf.text(`Total Activos: ${reportData.stats.auxiliaresActivos}/${reportData.stats.totalAuxiliares}`, 14, yPos);
         yPos += 5;
+        ensureSpace(6);
         pdf.text(`Total Horas: ${reportData.stats.horasAuxiliares}`, 14, yPos);
         yPos += 5;
+        ensureSpace(6);
         pdf.text(`Total Cursos Biblicos: ${reportData.stats.cursosBiblicosAuxiliares}`, 14, yPos);
         yPos += 12;
         
+        ensureSpace(12);
         pdf.setFontSize(14);
         pdf.setTextColor(128, 0, 128);
         pdf.text('PRECURSORES REGULARES', 14, yPos);
@@ -335,16 +370,21 @@ const MonthlyReportComponent: React.FC<MonthlyReportProps> = () => {
           const status = p.tuvoActividad 
             ? `Activo - Horas: ${p.horasPredicacion || 0} - Cursos: ${p.cursosBiblicos}` 
             : 'SIN REPORTE';
+          ensureSpace(10);
           pdf.text(`${p.nombre} (G${p.grupo}): ${status}`, 14, yPos);
           yPos += 5;
+          addObservacion(p.observaciones);
         });
         
         yPos += 5;
+        ensureSpace(10);
         pdf.setFontSize(11);
         pdf.text(`Total Activos: ${reportData.stats.regularesActivos}/${reportData.stats.totalRegulares}`, 14, yPos);
         yPos += 5;
+        ensureSpace(6);
         pdf.text(`Total Horas: ${reportData.stats.horasRegulares}`, 14, yPos);
         yPos += 5;
+        ensureSpace(6);
         pdf.text(`Total Cursos Biblicos: ${reportData.stats.cursosBiblicosRegulares}`, 14, yPos);
         
         pdf.addPage();
